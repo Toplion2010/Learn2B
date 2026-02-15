@@ -79,6 +79,15 @@ export function RegisterForm() {
             required
           />
         </div>
+        <div className="space-y-2">
+          <Label htmlFor="teacherCode">Teacher Code (optional)</Label>
+          <Input
+            id="teacherCode"
+            name="teacherCode"
+            type="text"
+            placeholder="Enter code if you are a teacher"
+          />
+        </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
         {success && <p className="text-sm text-green-600">{success}</p>}
         <Button type="submit" className="w-full" disabled={loading}>

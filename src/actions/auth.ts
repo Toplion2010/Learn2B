@@ -19,18 +19,37 @@ export async function signUp(formData: FormData) {
     return { error: result.error.issues[0].message };
   }
 
+  const teacherCode = (formData.get("teacherCode") as string)?.trim();
+  const isTeacher =
+    teacherCode !== "" &&
+    teacherCode === process.env.TEACHER_SECRET_CODE;
+
+  if (teacherCode && !isTeacher) {
+    return { error: "Invalid teacher code." };
+  }
+
   const { data, error } = await supabase.auth.signUp({
     email: result.data.email,
     password: result.data.password,
     options: {
       data: {
         full_name: result.data.fullName,
+        role: isTeacher ? "teacher" : "student",
       },
     },
   });
 
   if (error) {
     return { error: error.message };
+  }
+
+  // Update profile role if teacher
+  if (isTeacher && data.user) {
+    const { supabaseAdmin } = await import("@/lib/supabase/admin");
+    await supabaseAdmin
+      .from("profiles")
+      .update({ role: "teacher" })
+      .eq("id", data.user.id);
   }
 
   if (data.user && !data.session) {
